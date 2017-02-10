@@ -12,7 +12,8 @@ next(Id, Peers) ->
       timer:send_after(Timeout, timeup),
       {ReceivedMap, Sent} = task1(Id, Peers, Max_messages)  
   end,
-  io:format("~p : Sent ~p Received 1st: ~p ~n", [Id, Sent, maps:get(1,ReceivedMap)]).%next(Id, Peers).
+  print_result(Id, ReceivedMap, Sent),
+  exit(normal).
 
 task1(Id, Peers, Max_messages) ->
   % Mapping from process Ids to the number of messages received from process
@@ -24,10 +25,9 @@ task1(Id, Peers, Max_messages, ReceivedMap, Sent) ->
   
   case Command of
     continue_task ->
-      %io:format("NEWSENT = ~p MAX = ~p~n  BOOL = ~p  BOOL2 = ~p~n", [Sent, Max_messages, (Sent < Max_messages), (Max_messages == 0)]),
       if 
         (Sent < Max_messages) or (Max_messages == 0) ->
-          %io:format("Brodcastttttttttttt SENT = ~p ID = ~p Im~n", [NewSent, Id]),
+          
           self() ! broadcast,
           NewSent = Sent + 1;
         true ->
@@ -54,4 +54,8 @@ check_mailbox(Id, Peers, ReceivedMap) ->
 
 broadcast(Id, Peers) -> 
   [ P ! {deliver, Id} || P <- Peers].
+
+print_result(Id, ReceivedMap, Sent) ->
+  Received_list = [ {Sent, Received} || {_, Received} <- maps:to_list(ReceivedMap)],
+  io:format("~p: ~p~n", [Id, Received_list]).
  
