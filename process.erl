@@ -21,35 +21,29 @@ task1(Id, Peers, Max_messages) ->
   task1(Id, Peers, Max_messages, ReceivedMap, 0).
 
 task1(Id, Peers, Max_messages, ReceivedMap, Sent) ->
-  {Command, NewReceivedMap} = check_mailbox(Id, Peers, ReceivedMap),
-  
-  case Command of
-    continue_task ->
-      if 
-        (Sent < Max_messages) or (Max_messages == 0) ->
-          
-          self() ! broadcast,
-          NewSent = Sent + 1;
-        true ->
-          NewSent = Sent
-      end,
-      task1(Id, Peers, Max_messages, NewReceivedMap, NewSent);
-   
-    end_task ->    
-      {NewReceivedMap, Sent}
-  end.
-  
-check_mailbox(Id, Peers, ReceivedMap) ->
   receive
-    timeup             -> {end_task, ReceivedMap};
+    timeup                -> {ReceivedMap, Sent}
 
-    {deliver, SenderP} -> NewReceivedMap = maps:update(SenderP, maps:get(SenderP, ReceivedMap) + 1, ReceivedMap),
-                          {continue_task, NewReceivedMap};
-
-    broadcast          -> broadcast(Id, Peers), 
-                          {continue_task, ReceivedMap}
   after 0 ->
-    {continue_task, ReceivedMap}
+    receive 
+      {deliver, SenderP} -> NewReceivedMap = maps:update(SenderP, maps:get(SenderP, ReceivedMap) + 1, ReceivedMap),
+                            task1(Id, Peers, Max_messages, NewReceivedMap, Sent);
+
+      broadcast          -> if 
+                              (Sent < Max_messages) or (Max_messages == 0) ->
+                                broadcast(Id, Peers),
+                                NewSent = Sent + 1,
+                                if (NewSent < Max_messages) or (Max_messages == 0) ->
+                                  self() ! broadcast; true -> nothing  
+                                end,
+                                task1(Id, Peers, Max_messages, ReceivedMap, NewSent);
+                              true ->
+                                task1(Id, Peers, Max_messages, ReceivedMap, Sent)
+                           end 
+    after 0 ->
+      self() ! broadcast,
+      task1(Id, Peers, Max_messages, ReceivedMap, Sent)
+    end
   end.
 
 broadcast(Id, Peers) -> 
