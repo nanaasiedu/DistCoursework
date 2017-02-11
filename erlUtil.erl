@@ -1,3 +1,4 @@
+% Nana Asiedu-Ampem (na1814)
 -module(erlUtil).
 -export([atom_to_int/1]).
 

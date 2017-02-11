@@ -1,4 +1,4 @@
-
+# Nana Asiedu-Ampem (na1814)
 # distributed algorithms, n.dulay, 4 jan 17
 # simple build and run makefile, v1
 
