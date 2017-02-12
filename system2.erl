@@ -1,5 +1,5 @@
 % Nana Asiedu-Ampem (na1814)
--module(system1).
+-module(system2).
 
 -export([start/0, start/1]).
 
@@ -12,40 +12,38 @@ start(Args) ->
   Max_messages = erlUtil:atom_to_int(lists:nth(2, Args)),
   Timeout      = erlUtil:atom_to_int(lists:nth(3, Args)),    
 
-  Processes = spawn_processes(N), 
-  Pl_map = generate_pl_map(N),
+  spawn_processes(N), 
+  Pl_map = generate_pl_map(N), 
    
   Pl_map_list = maps:to_list(Pl_map),
-  lists:foreach(fun({_, Pl_pid}) -> Pl_pid ! {bind_address_map, Pl_map} end, Pl_map_list),
-
-  send_tasks(Processes, Max_messages, Timeout),
+  [ Pl_pid ! {bind_address_map, Pl_map} || {_, Pl_pid} <- Pl_map_list, Pl_pid /= self() ],
+  
+  send_tasks(Pl_map_list, N, Max_messages, Timeout),
   wait_on_tasks(N).
 
-send_tasks(Processes, Max_messages, Timeout) ->
-  [ P ! {task1, start, Max_messages, Timeout} || P <- Processes ].
+send_tasks(Pl_map_list, N, Max_messages, Timeout) ->
+  TaskRequest = {task1, start, N, Max_messages, Timeout},
+  [ Pl_pid ! {pl_deliver, TaskRequest} || {_, Pl_pid} <- Pl_map_list, Pl_pid /= self() ].
   
 spawn_processes(N) -> 
-   [ begin
-       {P, _} = spawn_monitor(process, start, [Id, self()]),
-       P
-     end || Id <- lists:seq(1, N) ].
+   [ spawn(processPl, start, [Id, self()]) || Id <- lists:seq(1, N) ].
 
 wait_on_tasks(0) -> halt();
 
 wait_on_tasks(N) -> 
   receive 
-    {'DOWN',_,_,_,_} -> wait_on_tasks(N-1)
+    {pl_deliver, end_task} -> wait_on_tasks(N-1)
   end.
 
 generate_pl_map(N) ->
   generate_pl_map(N, maps:new()).
 
 generate_pl_map(0, Pl_map) ->
-  Pl_map.
+  maps:put(0, self(), Pl_map);
 
 generate_pl_map(N, Pl_map) -> 
   receive
     {deliver_pl_component, PN, Pl_pid} -> 
-      New_map = maps:put(PN, Pl_pid, Pl_Map),
-      generate_pl_map(N, New_map)
+      New_map = maps:put(PN, Pl_pid, Pl_map),
+      generate_pl_map(N-1, New_map)
   end.

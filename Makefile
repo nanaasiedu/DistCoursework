@@ -4,7 +4,7 @@
 
 .SUFFIXES: .erl .beam
 
-MODULES  = system1 process erlUtil
+MODULES  = system1 process erlUtil system2 processPl plComponent erlUtil
 N = 5
 Max_messages = 1000
 Timeout = 3000
@@ -30,11 +30,11 @@ clean:
 
 # Run1 ===================================================
 
-SYSTEM    = system1
-
-#L_HOST    = localhost.localdomain
+#L_HOST   = localhost.localdomain
 L_ERL     = erl -noshell -pa ebin -setcookie pass
 
 run1:   all
-	clear; $(L_ERL) -s $(SYSTEM) start $(N) $(Max_messages) $(Timeout)
+	clear; $(L_ERL) -s system1 start $(N) $(Max_messages) $(Timeout)
 
+run2:   all
+	clear; $(L_ERL) -s system2 start $(N) $(Max_messages) $(Timeout)
