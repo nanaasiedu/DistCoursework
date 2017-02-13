@@ -4,7 +4,7 @@
 
 .SUFFIXES: .erl .beam
 
-MODULES  = system1 process erlUtil system2 processPl plComponent erlUtil system3 bebComponent processBeb lossyPlComponent system4 processBebLossy
+MODULES  = system1 process erlUtil system2 processPl plComponent erlUtil system3 bebComponent processBeb lossyPlComponent system4 processBebLossy system5 processBebFaulty
 N = 5
 Max_messages = 1000
 Timeout = 3000
@@ -45,3 +45,6 @@ run3:   all
 
 run4:   all
 		$(L_ERL) -s system4 start $(N) $(Max_messages) $(Timeout) $(Reliability)
+
+run5:   all
+		$(L_ERL) -s system5 start $(N) $(Max_messages) $(Timeout) $(Reliability)

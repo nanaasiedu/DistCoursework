@@ -13,8 +13,9 @@ start(R) ->
 next(Owner_pid, Pl_map, R) ->
   receive
     {pl_deliver, M}  -> Owner_pid ! {pl_deliver, M};
+    {pl_send, 0, M}  -> maps:get(0, Pl_map) ! {pl_deliver, M};
     {pl_send, PN, M} -> Rand = rand:uniform(100),
-                        if (Rand =< R) or (PN == 0) ->
+                        if (Rand =< R) ->
                           maps:get(PN, Pl_map) ! {pl_deliver, M};
                         true -> nothing
                         end
