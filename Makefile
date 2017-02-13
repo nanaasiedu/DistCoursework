@@ -16,13 +16,13 @@ ERLC	= erlc -o ebin
 ebin/%.beam: %.erl
 	$(ERLC) $<
 
-all:	ebin ${MODULES:%=ebin/%.beam} 
+all:	ebin ${MODULES:%=ebin/%.beam}
 
-ebin:	
+ebin:
 	mkdir ebin
 
 debug:
-	erl -s crashdump_viewer start 
+	erl -s crashdump_viewer start
 
 .PHONY: clean
 clean:
@@ -34,10 +34,10 @@ clean:
 L_ERL     = erl -noshell -pa ebin -setcookie pass
 
 run1:   all
-	clear; $(L_ERL) -s system1 start $(N) $(Max_messages) $(Timeout)
+	$(L_ERL) -s system1 start $(N) $(Max_messages) $(Timeout)
 
 run2:   all
-	clear; $(L_ERL) -s system2 start $(N) $(Max_messages) $(Timeout)
+	$(L_ERL) -s system2 start $(N) $(Max_messages) $(Timeout)
 
 run3:   all
-	clear; $(L_ERL) -s system3 start $(N) $(Max_messages) $(Timeout)
+	$(L_ERL) -s system3 start $(N) $(Max_messages) $(Timeout)

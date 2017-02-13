@@ -5,16 +5,16 @@
 start(Id, System_pid, N) ->
   Pl_pid  = spawn(plComponent, start, []),
   Beb_pid = spawn(bebComponent, start, [N]),
-  Beb_pid ! {bind_owner, self(), Pl_pid},
-  App_pid = spawn(processPl, start_app, [Id, Beb_pid]),
+  App_pid = spawn(processBeb, start_app, [Id, Beb_pid]),
+  Beb_pid ! {bind_owner, App_pid, Pl_pid},
   Pl_pid ! {bind_owner, Beb_pid},
   System_pid ! {deliver_pl_component, Id, Pl_pid}.
 
-start_app(Id, Beb_pid) -> 
+start_app(Id, Beb_pid) ->
   receive
-    {beb_deliver, {task1, start, N, Max_messages, Timeout}} -> 
+    {beb_deliver, {task1, start, N, Max_messages, Timeout}} ->
       timer:send_after(Timeout, timeup),
-      {ReceivedMap, Sent} = task1(Id, Beb_pid, N, Max_messages)  
+      {ReceivedMap, Sent} = task1(Id, Beb_pid, N, Max_messages)
   end,
   print_result(Id, ReceivedMap, Sent),
   Beb_pid ! {beb_broadcast, end_task},
@@ -30,31 +30,30 @@ task1(Id, Beb_pid, N, Max_messages, ReceivedMap, Sent) ->
     timeup               -> {ReceivedMap, Sent}
 
   after 0 ->
-    receive 
+    receive
       {beb_deliver, SenderP} -> NewReceivedMap = maps:update(SenderP, maps:get(SenderP, ReceivedMap) + 1, ReceivedMap),
                                task1(Id, Beb_pid, N, Max_messages, NewReceivedMap, Sent);
 
-      broadcast             -> if 
+      broadcast             -> if
                                  (Sent < Max_messages) or (Max_messages == 0) ->
                                    broadcast(Id, Beb_pid),
                                    NewSent = Sent + 1,
                                    if (NewSent < Max_messages) or (Max_messages == 0) ->
-                                     self() ! broadcast; true -> nothing  
+                                     self() ! broadcast; true -> nothing
                                    end,
                                    task1(Id, Beb_pid, N, Max_messages, ReceivedMap, NewSent);
                                  true ->
                                    task1(Id, Beb_pid, N, Max_messages, ReceivedMap, Sent)
-                               end 
+                               end
     after 0 ->
       self() ! broadcast,
       task1(Id, Beb_pid, N, Max_messages, ReceivedMap, Sent)
     end
   end.
 
-broadcast(Id, Beb_pid) -> 
-  Beb_pid ! {broadcast, Id}.
+broadcast(Id, Beb_pid) ->
+  Beb_pid ! {beb_broadcast, Id}.
 
 print_result(Id, ReceivedMap, Sent) ->
   Received_list = [ {Sent, Received} || {_, Received} <- maps:to_list(ReceivedMap)],
   io:format("~p: ~p~n", [Id, Received_list]).
- 

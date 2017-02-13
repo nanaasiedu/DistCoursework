@@ -9,8 +9,7 @@ start(N) ->
 
 next(Owner_pid, Pl_pid, N) ->
   receive
-    {beb_broadcast, M} -> [ Pl_pid ! {pl_send, Dest, M} || Dest <- lists:seq(1,N)];
+    {beb_broadcast, M} -> [ Pl_pid ! {pl_send, Dest, M} || Dest <- lists:seq(0,N)];
     {pl_deliver, M}    -> Owner_pid ! {beb_deliver, M}
   end,
   next(Owner_pid, Pl_pid, N).
-
