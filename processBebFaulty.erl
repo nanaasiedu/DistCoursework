@@ -15,11 +15,11 @@ start_app(Id, Beb_pid) ->
     {beb_deliver, {task1, start, N, Max_messages, Timeout}} ->
       if
         Id == 3 ->
-          NewTimeout = 5;
+          timer:send_after(5, terminate);
         true ->
-          NewTimeout = Timeout
+          ok
       end,
-      timer:send_after(NewTimeout, timeup),
+      timer:send_after(Timeout, timeup),
       {ReceivedMap, Sent} = task1(Id, Beb_pid, N, Max_messages)
   end,
   print_result(Id, ReceivedMap, Sent),
@@ -33,8 +33,8 @@ task1(Id, Beb_pid, N, Max_messages) ->
 
 task1(Id, Beb_pid, N, Max_messages, ReceivedMap, Sent) ->
   receive
-    timeup               -> {ReceivedMap, Sent}
-
+    timeup               -> {ReceivedMap, Sent};
+    terminate            -> exit(normal)
   after 0 ->
     receive
       {beb_deliver, SenderP} -> NewReceivedMap = maps:update(SenderP, maps:get(SenderP, ReceivedMap) + 1, ReceivedMap),
