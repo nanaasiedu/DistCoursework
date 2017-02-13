@@ -1,4 +1,4 @@
-% Nana asiedu (na1814)
+% Nana Asiedu-Ampem (na1814)
 -module(processPl).
 -export([start/2, start_app/2]).
 
@@ -8,11 +8,11 @@ start(Id, System_pid) ->
   Pl_pid ! {bind_owner, App_pid},
   System_pid ! {deliver_pl_component, Id, Pl_pid}.
 
-start_app(Id, Pl_pid) -> 
+start_app(Id, Pl_pid) ->
   receive
-    {pl_deliver, {task1, start, N, Max_messages, Timeout}} -> 
+    {pl_deliver, {task1, start, N, Max_messages, Timeout}} ->
       timer:send_after(Timeout, timeup),
-      {ReceivedMap, Sent} = task1(Id, Pl_pid, N, Max_messages)  
+      {ReceivedMap, Sent} = task1(Id, Pl_pid, N, Max_messages)
   end,
   print_result(Id, ReceivedMap, Sent),
   Pl_pid ! {pl_send, 0, end_task},
@@ -28,31 +28,30 @@ task1(Id, Pl_pid, N, Max_messages, ReceivedMap, Sent) ->
     timeup               -> {ReceivedMap, Sent}
 
   after 0 ->
-    receive 
+    receive
       {pl_deliver, SenderP} -> NewReceivedMap = maps:update(SenderP, maps:get(SenderP, ReceivedMap) + 1, ReceivedMap),
                                task1(Id, Pl_pid, N, Max_messages, NewReceivedMap, Sent);
 
-      broadcast             -> if 
+      broadcast             -> if
                                  (Sent < Max_messages) or (Max_messages == 0) ->
                                    broadcast(Id, Pl_pid, N),
                                    NewSent = Sent + 1,
                                    if (NewSent < Max_messages) or (Max_messages == 0) ->
-                                     self() ! broadcast; true -> nothing  
+                                     self() ! broadcast; true -> nothing
                                    end,
                                    task1(Id, Pl_pid, N, Max_messages, ReceivedMap, NewSent);
                                  true ->
                                    task1(Id, Pl_pid, N, Max_messages, ReceivedMap, Sent)
-                               end 
+                               end
     after 0 ->
       self() ! broadcast,
       task1(Id, Pl_pid, N, Max_messages, ReceivedMap, Sent)
     end
   end.
 
-broadcast(Id, Pl_pid, N) -> 
+broadcast(Id, Pl_pid, N) ->
   [ Pl_pid ! {pl_send, PN, Id} || PN <- lists:seq(1, N)].
 
 print_result(Id, ReceivedMap, Sent) ->
   Received_list = [ {Sent, Received} || {_, Received} <- maps:to_list(ReceivedMap)],
   io:format("~p: ~p~n", [Id, Received_list]).
- 

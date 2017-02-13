@@ -1,4 +1,4 @@
-% Nana asiedu (na1814)
+% Nana Asiedu-Ampem (na1814)
 -module(process).
 -export([start/1]).
 
@@ -7,11 +7,11 @@ start(Id) ->
     {bindProcesses, Processes} ->  next(Id, Processes)
   end.
 
-next(Id, Peers) ->  
+next(Id, Peers) ->
   receive
-    {task1, start, Max_messages, Timeout} -> 
+    {task1, start, Max_messages, Timeout} ->
       timer:send_after(Timeout, timeup),
-      {ReceivedMap, Sent} = task1(Id, Peers, Max_messages)  
+      {ReceivedMap, Sent} = task1(Id, Peers, Max_messages)
   end,
   print_result(Id, ReceivedMap, Sent),
   exit(normal).
@@ -26,31 +26,30 @@ task1(Id, Peers, Max_messages, ReceivedMap, Sent) ->
     timeup                -> {ReceivedMap, Sent}
 
   after 0 ->
-    receive 
+    receive
       {deliver, SenderP} -> NewReceivedMap = maps:update(SenderP, maps:get(SenderP, ReceivedMap) + 1, ReceivedMap),
                             task1(Id, Peers, Max_messages, NewReceivedMap, Sent);
 
-      broadcast          -> if 
+      broadcast          -> if
                               (Sent < Max_messages) or (Max_messages == 0) ->
                                 broadcast(Id, Peers),
                                 NewSent = Sent + 1,
                                 if (NewSent < Max_messages) or (Max_messages == 0) ->
-                                  self() ! broadcast; true -> nothing  
+                                  self() ! broadcast; true -> nothing
                                 end,
                                 task1(Id, Peers, Max_messages, ReceivedMap, NewSent);
                               true ->
                                 task1(Id, Peers, Max_messages, ReceivedMap, Sent)
-                           end 
+                           end
     after 0 ->
       self() ! broadcast,
       task1(Id, Peers, Max_messages, ReceivedMap, Sent)
     end
   end.
 
-broadcast(Id, Peers) -> 
+broadcast(Id, Peers) ->
   [ P ! {deliver, Id} || P <- Peers].
 
 print_result(Id, ReceivedMap, Sent) ->
   Received_list = [ {Sent, Received} || {_, Received} <- maps:to_list(ReceivedMap)],
   io:format("~p: ~p~n", [Id, Received_list]).
- 

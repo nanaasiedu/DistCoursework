@@ -1,4 +1,4 @@
-% Nana asiedu (na1814)
+% Nana Asiedu-Ampem (na1814)
 -module(bebComponent).
 -export([start/1]).
 

@@ -1,19 +1,21 @@
 % Nana Asiedu-Ampem (na1814)
--module(system4).
+-module(system2345).
 
 -export([start/0, start/1]).
 
 start() ->
   % Default values
-  start(['5', '1000', '3000', '50']).
+  start(['5', '1000', '3000', processPl, '100']).
 
-start(Args) ->
+start(CmdArgs) ->
+  Args = CmdArgs ++ ['100'],
   N            = erlUtil:atom_to_int(hd(Args)),
   Max_messages = erlUtil:atom_to_int(lists:nth(2, Args)),
   Timeout      = erlUtil:atom_to_int(lists:nth(3, Args)),
-  Reliability  = erlUtil:atom_to_int(lists:nth(4, Args)),
+  ProcessModule= lists:nth(4, Args),
+  Reliability  = erlUtil:atom_to_int(lists:nth(5, Args)),
 
-  spawn_processes(N, Reliability),
+  spawn_processes(N, ProcessModule, Reliability),
   Pl_map = generate_pl_map(N),
 
   Pl_map_list = maps:to_list(Pl_map),
@@ -26,8 +28,16 @@ send_tasks(Pl_map_list, N, Max_messages, Timeout) ->
   TaskRequest = {task1, start, N, Max_messages, Timeout},
   [ Pl_pid ! {pl_deliver, TaskRequest} || {_, Pl_pid} <- Pl_map_list, Pl_pid /= self() ].
 
-spawn_processes(N, Reliability) ->
-   [ spawn(processBebLossy, start, [Id, self(), N, Reliability]) || Id <- lists:seq(1, N) ].
+spawn_processes(N, ProcessModule, Reliability) ->
+  Args =
+  case ProcessModule of
+    processPl       -> [self()];
+    processBeb      -> [self(), N];
+    processBebLossy -> [self(), N, Reliability];
+    processBebFaulty-> [self(), N, Reliability];
+    _               -> []
+  end,
+  [ spawn(ProcessModule, start, [Id] ++ Args) || Id <- lists:seq(1, N) ].
 
 wait_on_tasks(0) -> halt();
 
