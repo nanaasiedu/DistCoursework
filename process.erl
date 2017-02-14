@@ -1,6 +1,6 @@
 % Nana Asiedu-Ampem (na1814)
 -module(process).
--export([start/1]).
+-export([start/1, print_result/3]).
 
 start(Id) ->
   receive

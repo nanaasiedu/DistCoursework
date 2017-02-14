@@ -14,7 +14,7 @@ start_app(Id, Pl_pid) ->
       timer:send_after(Timeout, timeup),
       {ReceivedMap, Sent} = task1(Id, Pl_pid, N, Max_messages)
   end,
-  print_result(Id, ReceivedMap, Sent),
+  process:print_result(Id, ReceivedMap, Sent),
   Pl_pid ! {pl_send, 0, end_task},
   exit(normal).
 
@@ -51,7 +51,3 @@ task1(Id, Pl_pid, N, Max_messages, ReceivedMap, Sent) ->
 
 broadcast(Id, Pl_pid, N) ->
   [ Pl_pid ! {pl_send, PN, Id} || PN <- lists:seq(1, N)].
-
-print_result(Id, ReceivedMap, Sent) ->
-  Received_list = [ {Sent, Received} || {_, Received} <- maps:to_list(ReceivedMap)],
-  io:format("~p: ~p~n", [Id, Received_list]).

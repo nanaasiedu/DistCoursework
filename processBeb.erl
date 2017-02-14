@@ -1,6 +1,6 @@
 % Nana Asiedu-Ampem (na1814)
 -module(processBeb).
--export([start/3, start_app/2]).
+-export([start/3, start_app/2, task1/4]).
 
 start(Id, System_pid, N) ->
   Pl_pid  = spawn(plComponent, start, []),
@@ -16,7 +16,7 @@ start_app(Id, Beb_pid) ->
       timer:send_after(Timeout, timeup),
       {ReceivedMap, Sent} = task1(Id, Beb_pid, N, Max_messages)
   end,
-  print_result(Id, ReceivedMap, Sent),
+  process:print_result(Id, ReceivedMap, Sent),
   Beb_pid ! {beb_broadcast, end_task},
   exit(normal).
 
@@ -27,7 +27,8 @@ task1(Id, Beb_pid, N, Max_messages) ->
 
 task1(Id, Beb_pid, N, Max_messages, ReceivedMap, Sent) ->
   receive
-    timeup               -> {ReceivedMap, Sent}
+    timeup                   -> {ReceivedMap, Sent};
+    terminate                -> exit(normal)
 
   after 0 ->
     receive
@@ -53,7 +54,3 @@ task1(Id, Beb_pid, N, Max_messages, ReceivedMap, Sent) ->
 
 broadcast(Id, Beb_pid) ->
   Beb_pid ! {beb_broadcast, Id}.
-
-print_result(Id, ReceivedMap, Sent) ->
-  Received_list = [ {Sent, Received} || {_, Received} <- maps:to_list(ReceivedMap)],
-  io:format("~p: ~p~n", [Id, Received_list]).
