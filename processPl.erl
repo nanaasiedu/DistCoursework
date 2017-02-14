@@ -3,14 +3,14 @@
 -export([start/2, start_app/2]).
 
 start(Id, System_pid) ->
-  Pl_pid  = spawn(plComponent, start, []),
+  Pl_pid  = spawn(plComponent, start, [Id]),
   App_pid = spawn(processPl, start_app, [Id, Pl_pid]),
   Pl_pid ! {bind_owner, App_pid},
   System_pid ! {deliver_pl_component, Id, Pl_pid}.
 
 start_app(Id, Pl_pid) ->
   receive
-    {pl_deliver, {task1, start, N, Max_messages, Timeout}} ->
+    {pl_deliver, 0, {task1, start, N, Max_messages, Timeout}} ->
       timer:send_after(Timeout, timeup),
       {ReceivedMap, Sent} = task1(Id, Pl_pid, N, Max_messages)
   end,
@@ -29,7 +29,7 @@ task1(Id, Pl_pid, N, Max_messages, ReceivedMap, Sent) ->
 
   after 0 ->
     receive
-      {pl_deliver, SenderP} -> NewReceivedMap = maps:update(SenderP, maps:get(SenderP, ReceivedMap) + 1, ReceivedMap),
+      {pl_deliver, SenderP, _} -> NewReceivedMap = maps:update(SenderP, maps:get(SenderP, ReceivedMap) + 1, ReceivedMap),
                                task1(Id, Pl_pid, N, Max_messages, NewReceivedMap, Sent);
 
       broadcast             -> if

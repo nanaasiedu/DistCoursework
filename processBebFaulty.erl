@@ -3,7 +3,7 @@
 -export([start/4, start_app/2]).
 
 start(Id, System_pid, N, Reliability) ->
-  Pl_pid  = spawn(lossyPlComponent, start, [Reliability]),
+  Pl_pid  = spawn(lossyPlComponent, start, [Id, Reliability]),
   Beb_pid = spawn(bebComponent, start, [N]),
   App_pid = spawn(processBebFaulty, start_app, [Id, Beb_pid]),
   Beb_pid ! {bind_owner, App_pid, Pl_pid},
@@ -12,7 +12,7 @@ start(Id, System_pid, N, Reliability) ->
 
 start_app(Id, Beb_pid) ->
   receive
-    {beb_deliver, {task1, start, N, Max_messages, Timeout}} ->
+    {beb_deliver, 0, {task1, start, N, Max_messages, Timeout}} ->
       if
         Id == 3 ->
           timer:send_after(5, terminate);

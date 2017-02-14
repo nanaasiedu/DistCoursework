@@ -22,11 +22,14 @@ start(CmdArgs) ->
   [ Pl_pid ! {bind_address_map, Pl_map} || {_, Pl_pid} <- Pl_map_list, Pl_pid /= self() ],
 
   send_tasks(Pl_map_list, N, Max_messages, Timeout),
+
+  SystemShutDownTimeOut = Timeout + 10000,
+  timer:send_after(SystemShutDownTimeOut, timeup),
   wait_on_tasks(N).
 
 send_tasks(Pl_map_list, N, Max_messages, Timeout) ->
   TaskRequest = {task1, start, N, Max_messages, Timeout},
-  [ Pl_pid ! {pl_deliver, TaskRequest} || {_, Pl_pid} <- Pl_map_list, Pl_pid /= self() ].
+  [ Pl_pid ! {pl_deliver, 0, TaskRequest} || {_, Pl_pid} <- Pl_map_list, Pl_pid /= self() ].
 
 spawn_processes(N, ProcessModule, Reliability) ->
   Args =
@@ -35,6 +38,7 @@ spawn_processes(N, ProcessModule, Reliability) ->
     processBeb      -> [self(), N];
     processBebLossy -> [self(), N, Reliability];
     processBebFaulty-> [self(), N, Reliability];
+    processRbFaulty -> [self(), N, Reliability];
     _               -> []
   end,
   [ spawn(ProcessModule, start, [Id] ++ Args) || Id <- lists:seq(1, N) ].
@@ -43,7 +47,9 @@ wait_on_tasks(0) -> halt();
 
 wait_on_tasks(N) ->
   receive
-    {pl_deliver, end_task} -> wait_on_tasks(N-1)
+    {pl_deliver, _, end_task} -> wait_on_tasks(N-1);
+    timeup -> io:format("System timeout: ~p process have not exited sucessfully", [N]),
+              halt()
   end.
 
 generate_pl_map(N) ->

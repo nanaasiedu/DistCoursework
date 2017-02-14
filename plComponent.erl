@@ -1,19 +1,18 @@
-% Nana asiedu (na1814)
+% Nana Asiedu-Ampem (na1814)
 -module(plComponent).
--export([start/0]).
+-export([start/1]).
 
-start() ->
+start(Id) ->
   receive
     {bind_owner, Owner_pid} -> ok
   end,
   receive
-    {bind_address_map, Pl_map} -> next(Owner_pid, Pl_map)  
+    {bind_address_map, Pl_map} -> next(Id, Owner_pid, Pl_map)
   end.
 
-next(Owner_pid, Pl_map) ->
+next(Id, Owner_pid, Pl_map) ->
   receive
-    {pl_deliver, M}  -> Owner_pid ! {pl_deliver, M};
-    {pl_send, PN, M} -> maps:get(PN, Pl_map) ! {pl_deliver, M}
+    {pl_deliver, From, M}  -> Owner_pid            ! {pl_deliver, From, M};
+    {pl_send, PN, M}       -> maps:get(PN, Pl_map) ! {pl_deliver, Id, M}
   end,
-  next(Owner_pid, Pl_map).
-
+  next(Id, Owner_pid, Pl_map).
