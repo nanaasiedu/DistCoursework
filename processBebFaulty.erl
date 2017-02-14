@@ -3,7 +3,7 @@
 -export([start/4, start_app/2]).
 
 start(Id, System_pid, N, Reliability) ->
-  Pl_pid  = spawn(lossyPlComponent, start, [Id, Reliability]),
+  Pl_pid  = spawn(plComponent, start, [Id, Reliability]),
   Beb_pid = spawn(bebComponent, start, [N]),
   App_pid = spawn(processBebFaulty, start_app, [Id, Beb_pid]),
   Beb_pid ! {bind_owner, App_pid, Pl_pid},
