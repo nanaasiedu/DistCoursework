@@ -37,7 +37,7 @@ next_send(Id, Owner_pid, Pl_map, R) ->
     {pl_send, PN, M} -> Rand = rand:uniform(100),
                         if (Rand =< R) ->
                           maps:get(PN, Pl_map) ! {pl_deliver, Id, M};
-                        true -> nothing
+                        true -> failed_to_send
                         end
   after 0 -> ok
   end,

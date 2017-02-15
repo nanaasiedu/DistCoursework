@@ -47,15 +47,14 @@ start_app(Id, Rb_pid) ->
                                    (Sent < Max_messages) or (Max_messages == 0) ->
                                      broadcast(Id, Rb_pid),
                                      NewSent = Sent + 1,
-                                     if (NewSent < Max_messages) or (Max_messages == 0) ->
-                                       self() ! broadcast; true -> nothing
-                                     end,
                                      task1(Id, Rb_pid, N, Max_messages, ReceivedMap, NewSent);
                                    true ->
                                      task1(Id, Rb_pid, N, Max_messages, ReceivedMap, Sent)
                                  end
       after 0 ->
-        self() ! broadcast,
+        if (Sent < Max_messages) or (Max_messages == 0) ->
+          self() ! broadcast; true -> nothing
+        end,
         task1(Id, Rb_pid, N, Max_messages, ReceivedMap, Sent)
       end
     end.

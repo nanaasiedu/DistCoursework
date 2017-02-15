@@ -36,15 +36,14 @@ task1(Id, Pl_pid, N, Max_messages, ReceivedMap, Sent) ->
                                  (Sent < Max_messages) or (Max_messages == 0) ->
                                    broadcast(Id, Pl_pid, N),
                                    NewSent = Sent + 1,
-                                   if (NewSent < Max_messages) or (Max_messages == 0) ->
-                                     self() ! broadcast; true -> nothing
-                                   end,
                                    task1(Id, Pl_pid, N, Max_messages, ReceivedMap, NewSent);
                                  true ->
                                    task1(Id, Pl_pid, N, Max_messages, ReceivedMap, Sent)
                                end
     after 0 ->
-      self() ! broadcast,
+      if (Sent < Max_messages) or (Max_messages == 0) ->
+        self() ! broadcast; true -> nothing
+      end,
       task1(Id, Pl_pid, N, Max_messages, ReceivedMap, Sent)
     end
   end.

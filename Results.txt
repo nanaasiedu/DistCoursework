@@ -1,0 +1,9 @@
+== NANA ASIEDU-AMPEM RESULTS ==
+
+== SYSTEM 1 ==
+{task1, start, 1000, 3000}:
+The output is the expected output shown in the spec. This makes sense as 3
+seconds is more than enough time for the processes to send and receive
+1000 messages.
+
+{task1, start, 0, 3000

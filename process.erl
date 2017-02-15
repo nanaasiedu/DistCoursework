@@ -34,9 +34,6 @@ task1(Id, Peers, Max_messages, ReceivedMap, Sent) ->
                               (Sent < Max_messages) or (Max_messages == 0) ->
                                 broadcast(Id, Peers),
                                 NewSent = Sent + 1,
-                                if (NewSent < Max_messages) or (Max_messages == 0) ->
-                                  self() ! broadcast; true -> nothing
-                                end,
                                 task1(Id, Peers, Max_messages, ReceivedMap, NewSent);
                               true ->
                                 task1(Id, Peers, Max_messages, ReceivedMap, Sent)
