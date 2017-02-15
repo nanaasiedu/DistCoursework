@@ -1,6 +1,6 @@
 % Nana Asiedu-Ampem (na1814)
 -module(processRbFaulty).
--export([start/4, start_app/2, broadcast/2]).
+-export([start/4, start_app/2, broadcast/3]).
 
 start(Id, System_pid, N, Reliability) ->
   Pl_pid  = spawn(plComponent, start, [Id, Reliability]),
@@ -28,5 +28,5 @@ start_app(Id, Rb_pid) ->
   Rb_pid ! {rb_broadcast, end_task},
   exit(normal).
 
-broadcast(Id, Rb_pid) ->
-  Rb_pid ! {rb_broadcast, Id} .
+broadcast(Id, Rb_pid, Sent) ->
+  Rb_pid ! {rb_broadcast, Sent} .

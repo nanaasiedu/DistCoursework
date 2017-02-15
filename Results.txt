@@ -2,8 +2,69 @@
 
 == SYSTEM 1 ==
 {task1, start, 1000, 3000}:
+
+1: [{1000,1000},{1000,1000},{1000,1000},{1000,1000},{1000,1000}]
+3: [{1000,1000},{1000,1000},{1000,1000},{1000,1000},{1000,1000}]
+4: [{1000,1000},{1000,1000},{1000,1000},{1000,1000},{1000,1000}]
+5: [{1000,1000},{1000,1000},{1000,1000},{1000,1000},{1000,1000}]
+2: [{1000,1000},{1000,1000},{1000,1000},{1000,1000},{1000,1000}]
+
 The output is the expected output shown in the spec. This makes sense as 3
 seconds is more than enough time for the processes to send and receive
 1000 messages.
 
-{task1, start, 0, 3000
+{task1, start, 0, 3000}:
+
+== SYSTEM 2 ==
+
+{task1, start, 100, 1000}:
+
+2: [{100,100},{100,100},{100,100},{100,100},{100,100}]
+5: [{100,100},{100,100},{100,100},{100,100},{100,100}]
+4: [{100,100},{100,100},{100,100},{100,100},{100,100}]
+3: [{100,100},{100,100},{100,100},{100,100},{100,100}]
+1: [{100,100},{100,100},{100,100},{100,100},{100,100}]
+
+The output is as expected. 1 second is more than enough time for 5 processes to send
+and receive 100 messages.
+
+{task1, start, 0, 1000}
+
+1: [{55649,12718},{55649,11255},{55649,8071},{55649,2976},{55649,2235}]
+2: [{12592,5240},{12592,4266},{12592,4727},{12592,837},{12592,909}]
+3: [{45261,9199},{45261,8073},{45261,6959},{45261,1838},{45261,2234}]
+5: [{73641,11451},{73641,9974},{73641,7594},{73641,2482},{73641,2234}]
+4: [{45901,12029},{45901,10534},{45901,7757},{45901,2650},{45901,2235}]
+
+As we can see, the number of messages sent by each process is a lot more than the
+number received. This is because of the new overhead in having messages being passed
+through a proxy (PL) than directly to the process itself.
+
+== SYSTEM 3 ==
+
+5: [{100,100},{100,100},{100,100},{100,100},{100,100}]
+1: [{100,100},{100,100},{100,100},{100,100},{100,100}]
+4: [{100,100},{100,100},{100,100},{100,100},{100,100}]
+2: [{100,100},{100,100},{100,100},{100,100},{100,100}]
+3: [{100,100},{100,100},{100,100},{100,100},{100,100}]
+
+The output is as expected. 1 second is more than enough time for 5 processes to send
+and receive 100 messages.
+
+1: [{432850,4050},{432850,651},{432850,505},{432850,1197},{432850,1549}]
+3: [{492401,10130},{492401,6626},{492401,6224},{492401,6506},{492401,12700}]
+4: [{568093,2313},{568093,42},{568093,41},{568093,111},{568093,111}]
+5: [{367041,8259},{367041,5035},{367041,4399},{367041,5059},{367041,9362}]
+2: [{487716,4484},{487716,1455},{487716,1036},{487716,1659},{487716,2639}]
+
+The number of messages sent for each process is in the same order of magnitude
+(10^5). This makes sense as each process should have relatively the same amount of
+time to broadcast messages. However the number received by each process is much lower
+because of the increased number of proxies. i.e. Each component has to deal with
+an extreme amount of messages that it has to process. Even though each process is
+able to send a beb broadcast request with ease, this request is stored in a message queue
+for the beb component which gets flooded quite quickly. This is made worse by the fact
+that when the beb component manages to send a send request to the pl component, it has
+to wait again but this time in the pl components message queue.
+
+== SYSTEM 4 ==

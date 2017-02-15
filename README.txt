@@ -9,7 +9,7 @@ no variable assignments.
 N (Number of processes) = 3,
 Max_messages            = 10,
 Timeout                 = 3000,
-Reliability             = 100,
+Reliability             = 50, (Only relevant for system4 onwards)
 
 On the commad line, variable assignments can be made to test various configurations.
 Using "make runN N=3 Timeout=10" you can change the values of N and Timeout.
@@ -26,7 +26,3 @@ make run1 : system1 with default parameters
 make run2 N=100 Max_messages=0 : system2
 make run4 Reliability=20 : system4 with low reliability
 make run5 : system 5
-
-== End ==
-
-More details about my solutions and testcases can be found in the Analysis.txt file

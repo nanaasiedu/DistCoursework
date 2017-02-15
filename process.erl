@@ -28,19 +28,16 @@ task1(Id, Peers, Max_messages, ReceivedMap, Sent) ->
   after 0 ->
     receive
       {deliver, SenderP} -> NewReceivedMap = maps:update(SenderP, maps:get(SenderP, ReceivedMap) + 1, ReceivedMap),
-                            task1(Id, Peers, Max_messages, NewReceivedMap, Sent);
+                            task1(Id, Peers, Max_messages, NewReceivedMap, Sent)
 
-      broadcast          -> if
-                              (Sent < Max_messages) or (Max_messages == 0) ->
-                                broadcast(Id, Peers),
-                                NewSent = Sent + 1,
-                                task1(Id, Peers, Max_messages, ReceivedMap, NewSent);
-                              true ->
-                                task1(Id, Peers, Max_messages, ReceivedMap, Sent)
-                           end
     after 0 ->
-      self() ! broadcast,
-      task1(Id, Peers, Max_messages, ReceivedMap, Sent)
+      if
+        (Sent < Max_messages) or (Max_messages == 0) ->
+          broadcast(Id, Peers),
+          task1(Id, Peers, Max_messages, ReceivedMap, Sent+1);
+        true ->
+          task1(Id, Peers, Max_messages, ReceivedMap, Sent)
+      end
     end
   end.
 

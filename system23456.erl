@@ -28,7 +28,7 @@ start(CmdArgs) ->
   % The system waits for N messages from each app process confirming the
   % completion of their tasks.
   % A timeout is triggered if the process take too long to send their message
-  SystemShutDownTimeOut = Timeout + 10000,
+  SystemShutDownTimeOut = Timeout + 15000,
   timer:send_after(SystemShutDownTimeOut, timeup),
   wait_on_tasks(N).
 
@@ -53,7 +53,7 @@ wait_on_tasks(0) -> halt();
 wait_on_tasks(N) ->
   receive
     {pl_deliver, _, end_task} -> wait_on_tasks(N-1);
-    timeup -> io:format("System timeout: ~p process have not exited sucessfully", [N]),
+    timeup -> io:format("System timeout: ~p process have not exited sucessfully~n", [N]),
               halt()
   end.
 

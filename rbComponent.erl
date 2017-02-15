@@ -18,7 +18,7 @@ next(Owner_pid, Beb_pid, Delivered) ->
     {beb_deliver, From, {data, Rb_From, M}} ->
       case lists:member(M, Delivered) of
         true -> next(Owner_pid, Beb_pid, Delivered);
-        false->
+        false-> 
           Owner_pid ! {rb_deliver, From, M},
           Beb_pid   ! {beb_broadcast, {data, Rb_From, M}},
           next(Owner_pid, Beb_pid, Delivered ++ [M])

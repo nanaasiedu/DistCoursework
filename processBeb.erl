@@ -1,6 +1,6 @@
 % Nana Asiedu-Ampem (na1814)
 -module(processBeb).
--export([start/3, start_app/2, broadcast/2]).
+-export([start/3, start_app/2, broadcast/3]).
 
 start(Id, System_pid, N) ->
   Pl_pid  = spawn(plComponent, start, [Id]),
@@ -20,5 +20,5 @@ start_app(Id, Beb_pid) ->
   Beb_pid ! {beb_broadcast, end_task},
   exit(normal).
 
-broadcast(Id, Beb_pid) ->
+broadcast(Id, Beb_pid, _) ->
   Beb_pid ! {beb_broadcast, Id}.
