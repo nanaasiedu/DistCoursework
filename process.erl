@@ -46,4 +46,4 @@ broadcast(Id, Peers) ->
 
 print_result(Id, ReceivedMap, Sent) ->
   Received_list = [ {Sent, Received} || {_, Received} <- maps:to_list(ReceivedMap)],
-  io:format("~p: ~p~n", [Id, Received_list]).
+  io:format("~p: ~w~n", [Id, Received_list]).

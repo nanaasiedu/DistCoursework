@@ -1,5 +1,11 @@
 == NANA ASIEDU-AMPEM RESULTS ==
 
+====== DISCLAIMER ========
+I discovered that when running my code on the VM or the lab machine, I would
+get drastically different results as the scheduler for both machines are potentially
+different. As this is outside my control, I advice to run the code on the VM if some of the
+results seem off. safe.
+
 == SYSTEM 1 ==
 {task1, start, 1000, 3000}:
 
@@ -42,6 +48,8 @@ through a proxy (PL) than directly to the process itself.
 
 == SYSTEM 3 ==
 
+{task1, start, 100, 1000}
+
 5: [{100,100},{100,100},{100,100},{100,100},{100,100}]
 1: [{100,100},{100,100},{100,100},{100,100},{100,100}]
 4: [{100,100},{100,100},{100,100},{100,100},{100,100}]
@@ -50,6 +58,8 @@ through a proxy (PL) than directly to the process itself.
 
 The output is as expected. 1 second is more than enough time for 5 processes to send
 and receive 100 messages.
+
+{task1, start, 0, 1000}:
 
 1: [{432850,4050},{432850,651},{432850,505},{432850,1197},{432850,1549}]
 3: [{492401,10130},{492401,6626},{492401,6224},{492401,6506},{492401,12700}]
@@ -68,3 +78,5 @@ that when the beb component manages to send a send request to the pl component, 
 to wait again but this time in the pl components message queue.
 
 == SYSTEM 4 ==
+
+{}
