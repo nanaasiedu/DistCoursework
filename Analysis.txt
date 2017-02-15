@@ -1,0 +1,3 @@
+== NANA ASIEDU-AMPEMS'S CW ANALYSIS ==
+== Approach ==
+Below is a general algorithm of how my solution works:

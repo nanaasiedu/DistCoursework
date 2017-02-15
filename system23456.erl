@@ -1,5 +1,5 @@
 % Nana Asiedu-Ampem (na1814)
--module(system2345).
+-module(system23456).
 
 -export([start/0, start/1]).
 
@@ -16,6 +16,8 @@ start(CmdArgs) ->
   Reliability  = erlUtil:atom_to_int(lists:nth(5, Args)),
 
   spawn_processes(N, ProcessModule, Reliability),
+  % Pl_map is a mapping from process number to their app components
+  % coressponding p2p link component
   Pl_map = generate_pl_map(N),
 
   Pl_map_list = maps:to_list(Pl_map),
@@ -23,6 +25,9 @@ start(CmdArgs) ->
 
   send_tasks(Pl_map_list, N, Max_messages, Timeout),
 
+  % The system waits for N messages from each app process confirming the
+  % completion of their tasks.
+  % A timeout is triggered if the process take too long to send their message
   SystemShutDownTimeOut = Timeout + 10000,
   timer:send_after(SystemShutDownTimeOut, timeup),
   wait_on_tasks(N).

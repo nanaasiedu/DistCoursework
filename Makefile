@@ -4,7 +4,7 @@
 
 .SUFFIXES: .erl .beam
 
-MODULES  = system1 process erlUtil system2345 processPl plComponent erlUtil bebComponent processBeb lossyPlComponent processBebLossy processBebFaulty processRbFaulty rbComponent
+MODULES  = system1 process erlUtil system23456 processPl plComponent erlUtil bebComponent processBeb lossyPlComponent processBebLossy processBebFaulty processRbFaulty rbComponent
 N = 5
 Max_messages = 1000
 Timeout = 3000
@@ -38,16 +38,16 @@ run1:   all
 	$(L_ERL) -s system1 start $(N) $(Max_messages) $(Timeout)
 
 run2:   all
-	$(L_ERL) -s system2345 start $(N) $(Max_messages) $(Timeout) processPl
+	$(L_ERL) -s system23456 start $(N) $(Max_messages) $(Timeout) processPl
 
 run3:   all
-	$(L_ERL) -s system2345 start $(N) $(Max_messages) $(Timeout) processBeb
+	$(L_ERL) -s system23456 start $(N) $(Max_messages) $(Timeout) processBeb
 
 run4:   all
-		$(L_ERL) -s system2345 start $(N) $(Max_messages) $(Timeout) processBebLossy $(Reliability)
+		$(L_ERL) -s system23456 start $(N) $(Max_messages) $(Timeout) processBebLossy $(Reliability)
 
 run5:   all
-		$(L_ERL) -s system2345 start $(N) $(Max_messages) $(Timeout) processBebFaulty $(Reliability)
+		$(L_ERL) -s system23456 start $(N) $(Max_messages) $(Timeout) processBebFaulty $(Reliability)
 
 run6:   all
-		$(L_ERL) -s system2345 start $(N) $(Max_messages) $(Timeout) processRbFaulty $(Reliability)
+		$(L_ERL) -s system23456 start $(N) $(Max_messages) $(Timeout) processRbFaulty $(Reliability)
