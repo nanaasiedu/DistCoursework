@@ -20,7 +20,7 @@ start_app(Id, Beb_pid) ->
           ok
       end,
       timer:send_after(Timeout, timeup),
-      {ReceivedMap, Sent} = processBeb:task1(Id, Beb_pid, N, Max_messages)
+      {ReceivedMap, Sent} = app:task1(Id, Beb_pid, N, Max_messages, processBeb)
   end,
   process:print_result(Id, ReceivedMap, Sent),
   Beb_pid ! {beb_broadcast, end_task},
